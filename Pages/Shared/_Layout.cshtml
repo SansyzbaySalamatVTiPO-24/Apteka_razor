@@ -1,0 +1,58 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Аптека</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand text-white" asp-page="/Index">💊 Аптека</a>
+
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" asp-page="/Index">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Employees">Сотрудники</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Drugs">Лекарства</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Sales">Продажи</a></li>
+                </ul>
+
+
+                <!-- 👇 Блок пользователя справа -->
+                <div class="text-light">
+                    @if (HttpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+                    {
+                        <span>
+                            👤 @HttpContextAccessor.HttpContext.Session.GetString("UserName")
+                            (@HttpContextAccessor.HttpContext.Session.GetString("UserRole"))
+                            <a class="btn btn-outline-light btn-sm ms-2" asp-page="/Logout">Выход</a>
+                        </span>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-light btn-sm" asp-page="/Login">Войти</a>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <main role="main" class="container mt-4">
+        @RenderBody()
+    </main>
+
+    <footer class="text-center mt-5 text-muted">
+        <hr />
+        <p>© 2025 Аптека</p>
+    </footer>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

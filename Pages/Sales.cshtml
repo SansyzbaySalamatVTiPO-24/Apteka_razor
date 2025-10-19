@@ -1,0 +1,29 @@
+﻿@page
+@model Apteka_razor.Pages.SalesModel
+@{
+    ViewData["Title"] = "Продажи";
+}
+
+<h2>Список продаж</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            
+            <th>Дата продажи</th>
+            <th>Сотрудник</th>
+            <th>Сумма</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.Sales)
+        {
+            <tr>
+                
+                <td>@(s.SaleDate?.ToShortDateString() ?? "-")</td>
+                <td>@s.Employee?.FullName</td>
+                <td>@s.TotalPrice</td>
+            </tr>
+        }
+    </tbody>
+</table>

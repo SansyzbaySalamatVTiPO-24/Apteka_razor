@@ -1,0 +1,40 @@
+﻿@page
+@model Apteka_razor.Pages.AddEmployeeModel
+@{
+    ViewData["Title"] = "Добавить сотрудника";
+}
+
+<h2>Добавить нового сотрудника</h2>
+
+<form method="post" class="mt-3">
+    <div class="mb-3">
+        <label>ФИО:</label>
+        <input asp-for="Employee.FullName" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Логин:</label>
+        <input asp-for="Employee.Login" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Пароль:</label>
+        <input asp-for="Employee.Password" type="password" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Роль:</label>
+        <select asp-for="Employee.Role" class="form-select">
+            <option value="Seller">Продавец</option>
+            <option value="Pharmacist">Фармацевт</option>
+            <option value="Admin">Администратор</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Аптека (ID):</label>
+        <input asp-for="Employee.PharmacyId" class="form-control" type="number" required />
+    </div>
+    <button type="submit" class="btn btn-success">Добавить</button>
+</form>
+
+@if (Model.Message != null)
+{
+    <div class="alert alert-info mt-3">@Model.Message</div>
+}

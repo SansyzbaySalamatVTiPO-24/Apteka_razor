@@ -1,0 +1,24 @@
+﻿@page
+@model Apteka_razor.Pages.LoginModel
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<h2>Вход</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Логин</label>
+        <input asp-for="Login" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Пароль</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Войти</button>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-danger mt-3">@Model.Message</div>
+    }
+</form>

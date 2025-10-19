@@ -1,0 +1,36 @@
+﻿@page
+@model Apteka_razor.Pages.EmployeesModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Сотрудники";
+}
+
+<h2>Список сотрудников</h2>
+
+<!-- ✅ Кнопка добавления сотрудника только для администратора -->
+@if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Admin")
+{
+    <a class="btn btn-primary mb-3" asp-page="/Add">➕ Добавить сотрудника</a>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ФИО</th>
+            <th>Роль</th>
+            <th>Аптека</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var emp in Model.Employees)
+        {
+            <tr>
+                <td>@emp.FullName</td>
+                <td>@emp.Role</td>
+                <td>@emp.PharmacyId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
