@@ -1,10 +1,17 @@
 ﻿@page
 @model Apteka_razor.Pages.SalesModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Продажи";
 }
 
 <h2>Список продаж</h2>
+@if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Admin" ||
+    HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Pharmacist" ||
+    HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Seller")
+{
+    <a class="btn btn-primary mb-3" asp-page="/AddSale">➕ Добавить продажу</a>
+}
 
 <table class="table table-bordered">
     <thead>
