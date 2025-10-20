@@ -1,8 +1,9 @@
-﻿using Apteka_razor.Data;
-using Apteka_razor.Data.Models;
+﻿// Pages/AddSaleModel.cshtml.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Apteka_razor.Data;
+using Apteka_razor.Data.Models;
 
 namespace Apteka_razor.Pages
 {
@@ -10,67 +11,133 @@ namespace Apteka_razor.Pages
     {
         private readonly AppDbContext _context;
 
-        [BindProperty]
-        public Sale Sale { get; set; } = new();
-
-        [BindProperty]
-        public List<SaleDetail> SaleDetails { get; set; } = new() { new SaleDetail() };
-
-        public List<Employee> Employees { get; set; } = new();
-        public List<Drug> Drugs { get; set; } = new();
-
-        public string? Message { get; set; }
-
         public AddSaleModel(AppDbContext context)
         {
             _context = context;
         }
 
-        public void OnGet()
+        [BindProperty]
+        public Sale Sale { get; set; } = new Sale();
+
+        [BindProperty]
+        public List<SaleDetailViewModel> SaleDetails { get; set; } = new List<SaleDetailViewModel>
         {
-            Employees = _context.Employees.ToList();
-            Drugs = _context.Drugs.ToList();
+            new SaleDetailViewModel()
+        };
+
+        public List<Employee> Employees { get; set; } = new List<Employee>();
+        public List<Drug> Drugs { get; set; } = new List<Drug>();
+
+        public string Message { get; set; } = string.Empty;
+
+        public async Task OnGetAsync()
+        {
+            await LoadData();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
-            // Проверка роли — только Admin и Pharmacist могут добавлять
-            var role = HttpContext.Session.GetString("UserRole");
-            if (role != "Admin" && role != "Pharmacist")
+            await LoadData();
+
+            if (!ModelState.IsValid)
             {
-                Message = "❌ У вас нет прав для добавления продаж.";
-                Employees = _context.Employees.ToList();
-                Drugs = _context.Drugs.ToList();
                 return Page();
             }
 
-            // Если дата не задана, ставим текущую
-            if (Sale.Date == default)
-                Sale.Date = DateTime.Now;
-
-            // Вычисляем цену для каждой позиции
-            foreach (var detail in SaleDetails)
+            try
             {
-                var drug = _context.Drugs.FirstOrDefault(d => d.Id == detail.DrugId);
-                if (drug != null)
+                // Валидация сотрудника
+                var selectedEmployee = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.Id == Sale.EmployeeId);
+
+                if (selectedEmployee == null)
                 {
-                    detail.Price = (double)drug.Price * detail.Quantity;
+                    ModelState.AddModelError("Sale.EmployeeId", "Выбранный сотрудник не существует");
+                    return Page();
                 }
+
+                // Заполняем обязательные поля согласно структуре БД
+                Sale.Date ??= DateTime.Today;
+                Sale.CustomerId = 1; // Временное значение, т.к. поле NOT NULL в БД
+                Sale.Total = 0;      // Временное значение, т.к. поле NOT NULL в БД
+                Sale.TotalPrice = 0; // Временное значение
+
+                _context.Sales.Add(Sale);
+                await _context.SaveChangesAsync();
+
+                // Сохраняем детали продажи
+                decimal totalSalePrice = 0;
+                foreach (var detailVm in SaleDetails)
+                {
+                    if (detailVm.DrugId > 0 && detailVm.Quantity > 0)
+                    {
+                        var drug = await _context.Drugs.FindAsync(detailVm.DrugId);
+                        if (drug != null)
+                        {
+                            var detail = new SaleDetail
+                            {
+                                SaleId = Sale.Id,
+                                DrugId = detailVm.DrugId,
+                                Quantity = detailVm.Quantity,
+                                UnitPrice = drug.Price,
+                                TotalPrice = detailVm.Quantity * drug.Price
+                            };
+
+                            totalSalePrice += detail.TotalPrice;
+                            _context.SaleDetails.Add(detail);
+                        }
+                    }
+                }
+
+                // Обновляем общую сумму продажи
+                Sale.TotalPrice = totalSalePrice;
+                Sale.Total = (double)totalSalePrice; // Конвертируем в double для поля Total
+                await _context.SaveChangesAsync();
+
+                Message = "Продажа успешно добавлена!";
+
+                // Очищаем форму
+                Sale = new Sale();
+                SaleDetails = new List<SaleDetailViewModel> { new SaleDetailViewModel() };
+                ModelState.Clear();
+
+                await LoadData();
             }
-
-            Sale.TotalPrice = (decimal)SaleDetails.Sum(d => d.Price);
-            Sale.SaleDetails = SaleDetails;
-
-            _context.Sales.Add(Sale);
-            _context.SaveChanges();
-
-            Message = "✅ Продажа успешно добавлена!";
-            Sale = new Sale();
-            SaleDetails = new List<SaleDetail>() { new SaleDetail() };
-            Employees = _context.Employees.ToList();
-            Drugs = _context.Drugs.ToList();
+            catch (Exception ex)
+            {
+                Message = $"Ошибка: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    Message += $" | Детали: {ex.InnerException.Message}";
+                }
+                await LoadData();
+            }
 
             return Page();
         }
+
+        private async Task LoadData()
+        {
+            try
+            {
+                Employees = await _context.Employees
+                    .Include(e => e.Pharmacy)
+                    .ToListAsync();
+
+                Drugs = await _context.Drugs.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки данных: {ex.Message}");
+                Employees = new List<Employee>();
+                Drugs = new List<Drug>();
+            }
+        }
+    }
+
+    public class SaleDetailViewModel
+    {
+        public int DrugId { get; set; }
+        public int Quantity { get; set; }
     }
 }

@@ -6,6 +6,7 @@
 }
 
 <h2>Список продаж</h2>
+
 @if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Admin" ||
     HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Pharmacist" ||
     HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Seller")
@@ -13,24 +14,49 @@
     <a class="btn btn-primary mb-3" asp-page="/AddSale">➕ Добавить продажу</a>
 }
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            
-            <th>Дата продажи</th>
-            <th>Сотрудник</th>
-            <th>Сумма</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var s in Model.Sales)
-        {
+<!-- Блок отладки -->
+<div class="alert alert-info mb-3">
+    <strong>Информация:</strong> Загружено @Model.Sales.Count продаж
+</div>
+
+@if (!Model.Sales.Any())
+{
+    <div class="alert alert-warning">
+        <h4>Нет данных для отображения</h4>
+        <p>В базе данных нет записей о продажах или произошла ошибка при загрузке.</p>
+        <a href="/AddSale" class="btn btn-success">Создать первую продажу</a>
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
             <tr>
-                
-                <td>@(s.SaleDate?.ToShortDateString() ?? "-")</td>
-                <td>@s.Employee?.FullName</td>
-                <td>@s.TotalPrice</td>
+                <th>ID</th>
+                <th>Дата продажи</th>
+                <th>Сотрудник</th>
+                <th>Сумма</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Sales)
+            {
+                <tr>
+                    <td>@s.Id</td>
+                    <td>@(s.Date?.ToString("dd.MM.yyyy") ?? "Не указана")</td>
+                    <td>@(s.Employee?.FullName ?? "Не указан")</td>
+                    <td>
+                        @if (s.TotalPrice.HasValue)
+                        {
+                            @s.TotalPrice.Value.ToString("C")
+                        }
+                        else
+                        {
+                            <text>0 ₽</text>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

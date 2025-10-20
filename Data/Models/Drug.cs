@@ -1,14 +1,17 @@
-﻿namespace Apteka_razor.Data.Models
+﻿// Models/Drug.cs
+using System.ComponentModel.DataAnnotations;
+
+namespace Apteka_razor.Data.Models
 {
     public class Drug
     {
+        [Key]
         public int Id { get; set; }
-        public string Name { get; set; } = "";
-        public string? Manufacturer { get; set; }     // nullable
-        public decimal? Price { get; set; }           // nullable
-        public DateTime? ExpirationDate { get; set; } // nullable
-        public int? PharmacyId { get; set; }          // nullable
-        public Pharmacy? Pharmacy { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+
+        // Только эти свойства есть в БД
+        // Manufacturer и ExpirationDate временно удалены
     }
 }
-
