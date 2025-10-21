@@ -1,4 +1,4 @@
-﻿// Models/Sale.cs
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,24 +9,27 @@ namespace Apteka_razor.Data.Models
         [Key]
         public int Id { get; set; }
 
-        [Column("Employeeld")] // Обратите внимание на название столбца в БД
+        [Display(Name = "Дата продажи")]
+        public DateTime SaleDate { get; set; } = DateTime.Today; // ✅ правильное свойство
+
+        [Display(Name = "Общая сумма (decimal)")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TotalPrice { get; set; } = 0; // ✅ decimal — для денег
+
+        [Display(Name = "Общая сумма (double, если нужно старое поле)")]
+        public double Total { get; set; } = 0; // ✅ если в БД есть столбец Total (double)
+
+        // Внешние ключи
+        [Required]
         public int EmployeeId { get; set; }
 
-        [Column("SaleDate")]
-        public DateTime? Date { get; set; }
+        [ForeignKey(nameof(EmployeeId))]
+        public Employee Employee { get; set; }
 
-        [Column("TotalPrice")]
-        public decimal? TotalPrice { get; set; } // В БД допускает NULL
+        [Required]
+        public int CustomerId { get; set; }
 
-        // Дополнительные столбцы из БД, которых нет в модели
-        public int CustomerId { get; set; } // Обязательное поле в БД
-
-        [Column("Total")]
-        public double Total { get; set; }  // В БД тип float, в C# - double
-
-        [ForeignKey("EmployeeId")]
-        public Employee? Employee { get; set; }
-
-        public List<SaleDetail> SaleDetails { get; set; } = new();
+        [ForeignKey(nameof(CustomerId))]
+        public Customer Customer { get; set; }
     }
 }

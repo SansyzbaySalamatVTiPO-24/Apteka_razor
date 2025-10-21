@@ -1,6 +1,11 @@
 ﻿@page
 @model Apteka_razor.Pages.SalesModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject Apteka_razor.Data.AppDbContext _context
+@using Microsoft.EntityFrameworkCore.Infrastructure
+@using System.Data.Common
+@using Microsoft.EntityFrameworkCore
+
 @{
     ViewData["Title"] = "Продажи";
 }
@@ -14,12 +19,22 @@
     <a class="btn btn-primary mb-3" asp-page="/AddSale">➕ Добавить продажу</a>
 }
 
-<!-- Блок отладки -->
+<!-- 🔧 Отладочный блок -->
 <div class="alert alert-info mb-3">
-    <strong>Информация:</strong> Загружено @Model.Sales.Count продаж
+    <strong>Отладка:</strong><br />
+    Кол-во продаж: @Model.Sales.Count<br />
+    База данных: @_context.Database.GetDbConnection().Database<br />
+    Сервер: @_context.Database.GetDbConnection().DataSource<br />
+    Первая продажа: @(Model.Sales.FirstOrDefault()?.SaleDate.ToString("dd.MM.yyyy") ?? "нет данных")
 </div>
 
-@if (!Model.Sales.Any())
+@if (Model.Sales == null)
+{
+    <div class="alert alert-danger">
+        <strong>Ошибка:</strong> Model.Sales = null (не инициализировано)
+    </div>
+}
+else if (!Model.Sales.Any())
 {
     <div class="alert alert-warning">
         <h4>Нет данных для отображения</h4>
@@ -43,18 +58,9 @@ else
             {
                 <tr>
                     <td>@s.Id</td>
-                    <td>@(s.Date?.ToString("dd.MM.yyyy") ?? "Не указана")</td>
+                    <td>@s.SaleDate.ToString("dd.MM.yyyy")</td>
                     <td>@(s.Employee?.FullName ?? "Не указан")</td>
-                    <td>
-                        @if (s.TotalPrice.HasValue)
-                        {
-                            @s.TotalPrice.Value.ToString("C")
-                        }
-                        else
-                        {
-                            <text>0 ₽</text>
-                        }
-                    </td>
+                    <td>@s.Total.ToString("C")</td>
                 </tr>
             }
         </tbody>

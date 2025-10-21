@@ -57,7 +57,8 @@ namespace Apteka_razor.Pages
                 }
 
                 // Заполняем обязательные поля согласно структуре БД
-                Sale.Date ??= DateTime.Today;
+                if (Sale.SaleDate == default)
+                    Sale.SaleDate = DateTime.Today;
                 Sale.CustomerId = 1; // Временное значение, т.к. поле NOT NULL в БД
                 Sale.Total = 0;      // Временное значение, т.к. поле NOT NULL в БД
                 Sale.TotalPrice = 0; // Временное значение

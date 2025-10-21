@@ -1,9 +1,10 @@
-// Pages/SalesModel.cshtml.cs
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+п»їusing Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Apteka_razor.Data;
 using Apteka_razor.Data.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Apteka_razor.Pages
 {
@@ -22,23 +23,40 @@ namespace Apteka_razor.Pages
         {
             try
             {
-                // Простой запрос для диагностики
+                Console.WriteLine("=== РќР°С‡Р°Р»Рѕ Р·Р°РіСЂСѓР·РєРё РїСЂРѕРґР°Р¶ ===");
+
+                // РџСЂРѕРІРµСЂСЏРµРј РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…
+                bool canConnect = await _context.Database.CanConnectAsync();
+                Console.WriteLine($"РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…: {(canConnect ? "СѓСЃРїРµС€РЅРѕ" : "РѕС€РёР±РєР°")}");
+                Console.WriteLine($"Р‘Р°Р·Р° РґР°РЅРЅС‹С…: {_context.Database.GetDbConnection().Database}");
+                Console.WriteLine($"РЎРµСЂРІРµСЂ: {_context.Database.GetDbConnection().DataSource}");
+
+                // вњ… РСЃРїСЂР°РІР»РµРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ
                 Sales = await _context.Sales
-                    .Include(s => s.Employee)  // Включаем сотрудника
-                    .OrderByDescending(s => s.Date)  // Сортируем по дате
+                    .Include(s => s.Employee) // РїРѕРґРєР»СЋС‡Р°РµРј СЃРѕС‚СЂСѓРґРЅРёРєР°
+                    .OrderByDescending(s => s.SaleDate)
                     .ToListAsync();
 
-                // Логируем для отладки
-                Console.WriteLine($"Загружено продаж: {Sales.Count}");
-                foreach (var sale in Sales.Take(3))
+                Console.WriteLine($"Р—Р°РіСЂСѓР¶РµРЅРѕ РїСЂРѕРґР°Р¶: {Sales.Count}");
+
+                if (Sales.Count == 0)
                 {
-                    Console.WriteLine($"Sale ID: {sale.Id}, Date: {sale.Date}, Employee: {sale.Employee?.FullName ?? "NULL"}, Total: {sale.TotalPrice}");
+                    Console.WriteLine("вљ пёЏ РџСЂРѕРґР°Р¶Рё РЅРµ РЅР°Р№РґРµРЅС‹. Р’РѕР·РјРѕР¶РЅРѕ, С‚Р°Р±Р»РёС†Р° РїСѓСЃС‚Р°СЏ РёР»Рё РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє РґСЂСѓРіРѕР№ Р‘Р”.");
                 }
+                else
+                {
+                    foreach (var sale in Sales.Take(3))
+                    {
+                        Console.WriteLine($"Sale ID: {sale.Id}, Date: {sale.SaleDate}, Employee: {sale.Employee?.FullName ?? "NULL"}, Total: {sale.TotalPrice}");
+                    }
+                }
+
+                Console.WriteLine("=== Р—Р°РіСЂСѓР·РєР° РїСЂРѕРґР°Р¶ Р·Р°РІРµСЂС€РµРЅР° ===");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при загрузке продаж: {ex.Message}");
-                // Устанавливаем пустой список в случае ошибки
+                Console.WriteLine($"вќЊ РћС€РёР±РєР° РїСЂРё Р·Р°РіСЂСѓР·РєРµ РїСЂРѕРґР°Р¶: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 Sales = new List<Sale>();
             }
         }
