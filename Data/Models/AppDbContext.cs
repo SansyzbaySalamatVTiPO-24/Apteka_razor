@@ -1,5 +1,4 @@
-﻿// Data/AppDbContext.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Apteka_razor.Data.Models;
 
 namespace Apteka_razor.Data
@@ -18,12 +17,11 @@ namespace Apteka_razor.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Настройка связи между Employee и Pharmacy
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.Pharmacy)
                 .WithMany(p => p.Employees)
                 .HasForeignKey(e => e.PharmacyId)
-                .OnDelete(DeleteBehavior.Restrict); // Или Cascade в зависимости от бизнес-логики
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
