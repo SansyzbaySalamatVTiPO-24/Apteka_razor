@@ -1,14 +1,13 @@
 ﻿using Apteka_razor.Data;
-using Apteka_razor.Data.Models; // 👈 правильное пространство имён для Drug
+using Apteka_razor.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace Apteka_razor.Pages.Drugs
 {
-    [Authorize]
+   
     public class CreateModel : PageModel
     {
         private readonly AppDbContext _context;
@@ -43,7 +42,7 @@ namespace Apteka_razor.Pages.Drugs
             _context.Drugs.Add(Drug);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("/Drugs/Index");
+            return RedirectToPage("/Drugss/Drugs");
         }
     }
 }

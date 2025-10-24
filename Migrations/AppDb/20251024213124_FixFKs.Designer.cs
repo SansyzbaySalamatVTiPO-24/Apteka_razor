@@ -4,6 +4,7 @@ using Apteka_razor.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apteka_razor.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024213124_FixFKs")]
+    partial class FixFKs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,7 +160,7 @@ namespace Apteka_razor.Migrations.AppDb
                     b.Property<double>("Total")
                         .HasColumnType("float");
 
-                    b.Property<decimal?>("TotalPrice")
+                    b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -169,7 +172,7 @@ namespace Apteka_razor.Migrations.AppDb
                     b.ToTable("Sales");
                 });
 
-            modelBuilder.Entity("SaleDetail", b =>
+            modelBuilder.Entity("Apteka_razor.Data.Models.SaleDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,14 +183,17 @@ namespace Apteka_razor.Migrations.AppDb
                     b.Property<int>("DrugId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int>("SaleId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -195,7 +201,7 @@ namespace Apteka_razor.Migrations.AppDb
 
                     b.HasIndex("SaleId");
 
-                    b.ToTable("SaleDetail", (string)null);
+                    b.ToTable("SaleDetails");
                 });
 
             modelBuilder.Entity("Apteka_razor.Data.Models.Drug", b =>
@@ -238,7 +244,7 @@ namespace Apteka_razor.Migrations.AppDb
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("SaleDetail", b =>
+            modelBuilder.Entity("Apteka_razor.Data.Models.SaleDetail", b =>
                 {
                     b.HasOne("Apteka_razor.Data.Models.Drug", "Drug")
                         .WithMany()

@@ -1,24 +1,30 @@
-﻿// Models/SaleDetail.cs
+﻿using Apteka_razor.Data.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Apteka_razor.Data.Models
+
+[Table("SaleDetail")] // ← важно!
+public class SaleDetail
 {
-    public class SaleDetail
-    {
-        [Key]
-        public int Id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-        public int SaleId { get; set; }
-        public int DrugId { get; set; }
-        public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
-        public decimal TotalPrice { get; set; }
+    [Required]
+    public int SaleId { get; set; }
 
-        [ForeignKey("SaleId")]
-        public Sale Sale { get; set; } = null!;
+    [ForeignKey(nameof(SaleId))]
+    public Sale Sale { get; set; } = null!;
 
-        [ForeignKey("DrugId")]
-        public Drug Drug { get; set; } = null!;
-    }
+    [Required]
+    public int DrugId { get; set; }
+
+    [ForeignKey(nameof(DrugId))]
+    public Drug Drug { get; set; } = null!;
+
+    [Required]
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal Price { get; set; }
+
+    [Required]
+    public int Quantity { get; set; }
 }

@@ -1,23 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Apteka_razor.Data.Models
+﻿namespace Apteka_razor.Data.Models
 {
     public class Drug
     {
         public int Id { get; set; }
-
-        [Required]
-        public string Name { get; set; } = null!;
-
-        [Required]
-        [Range(0, double.MaxValue)]
-        public decimal Price { get; set; }
-
+        public string? Name { get; set; }
+        public decimal? Price { get; set; }
+        public int Quantity { get; set; } // ← только это поле, без ? и без StockQuantity
         public string? Manufacturer { get; set; }
-
-        [DataType(DataType.Date)]
         public DateTime? ExpirationDate { get; set; }
-
-        public int StockQuantity { get; set; } = 0;
+        public int? PharmacyId { get; set; }
+        public string? Category { get; set; }
+        public string? Description { get; set; }
+        public Pharmacy? Pharmacy { get; set; }
     }
 }

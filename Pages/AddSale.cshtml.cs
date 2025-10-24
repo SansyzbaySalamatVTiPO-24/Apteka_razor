@@ -1,5 +1,4 @@
-﻿// Pages/AddSaleModel.cshtml.cs
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Apteka_razor.Data;
@@ -46,7 +45,6 @@ namespace Apteka_razor.Pages
 
             try
             {
-                // Валидация сотрудника
                 var selectedEmployee = await _context.Employees
                     .FirstOrDefaultAsync(e => e.Id == Sale.EmployeeId);
 
@@ -56,18 +54,18 @@ namespace Apteka_razor.Pages
                     return Page();
                 }
 
-                // Заполняем обязательные поля согласно структуре БД
                 if (Sale.SaleDate == default)
                     Sale.SaleDate = DateTime.Today;
-                Sale.CustomerId = 1; // Временное значение, т.к. поле NOT NULL в БД
-                Sale.Total = 0;      // Временное значение, т.к. поле NOT NULL в БД
-                Sale.TotalPrice = 0; // Временное значение
+
+                Sale.CustomerId = 1; // временное значение
+                Sale.Total = 0;
+                Sale.TotalPrice = 0;
 
                 _context.Sales.Add(Sale);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // чтобы Sale.Id был доступен
 
-                // Сохраняем детали продажи
                 decimal totalSalePrice = 0;
+
                 foreach (var detailVm in SaleDetails)
                 {
                     if (detailVm.DrugId > 0 && detailVm.Quantity > 0)
@@ -80,11 +78,11 @@ namespace Apteka_razor.Pages
                                 SaleId = Sale.Id,
                                 DrugId = detailVm.DrugId,
                                 Quantity = detailVm.Quantity,
-                                UnitPrice = drug.Price,
-                                TotalPrice = detailVm.Quantity * drug.Price
+                                Price = drug.Price ?? 0
                             };
 
-                            totalSalePrice += detail.TotalPrice;
+                            totalSalePrice += detail.Quantity * detail.Price;
+
                             _context.SaleDetails.Add(detail);
                         }
                     }
@@ -92,26 +90,22 @@ namespace Apteka_razor.Pages
 
                 // Обновляем общую сумму продажи
                 Sale.TotalPrice = totalSalePrice;
-                Sale.Total = (double)totalSalePrice; // Конвертируем в double для поля Total
+                Sale.Total = (double)totalSalePrice;
                 await _context.SaveChangesAsync();
 
                 Message = "Продажа успешно добавлена!";
 
-                // Очищаем форму
+                // очищаем форму
                 Sale = new Sale();
                 SaleDetails = new List<SaleDetailViewModel> { new SaleDetailViewModel() };
                 ModelState.Clear();
-
                 await LoadData();
             }
             catch (Exception ex)
             {
                 Message = $"Ошибка: {ex.Message}";
                 if (ex.InnerException != null)
-                {
                     Message += $" | Детали: {ex.InnerException.Message}";
-                }
-                await LoadData();
             }
 
             return Page();
@@ -121,10 +115,7 @@ namespace Apteka_razor.Pages
         {
             try
             {
-                Employees = await _context.Employees
-                    .Include(e => e.Pharmacy)
-                    .ToListAsync();
-
+                Employees = await _context.Employees.Include(e => e.Pharmacy).ToListAsync();
                 Drugs = await _context.Drugs.ToListAsync();
             }
             catch (Exception ex)

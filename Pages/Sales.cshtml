@@ -1,10 +1,6 @@
 ﻿@page
+@using System.Globalization
 @model Apteka_razor.Pages.SalesModel
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-@inject Apteka_razor.Data.AppDbContext _context
-@using Microsoft.EntityFrameworkCore.Infrastructure
-@using System.Data.Common
-@using Microsoft.EntityFrameworkCore
 
 @{
     ViewData["Title"] = "Продажи";
@@ -12,42 +8,27 @@
 
 <h2>Список продаж</h2>
 
-@if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Admin" ||
-    HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Pharmacist" ||
-    HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Seller")
+@if (HttpContext.Session.GetString("UserRole") == "Admin" ||
+    HttpContext.Session.GetString("UserRole") == "Pharmacist" ||
+    HttpContext.Session.GetString("UserRole") == "Seller")
 {
     <a class="btn btn-primary mb-3" asp-page="/AddSale">➕ Добавить продажу</a>
 }
 
-<!-- 🔧 Отладочный блок -->
-<div class="alert alert-info mb-3">
-    <strong>Отладка:</strong><br />
-    Кол-во продаж: @Model.Sales.Count<br />
-    База данных: @_context.Database.GetDbConnection().Database<br />
-    Сервер: @_context.Database.GetDbConnection().DataSource<br />
-    Первая продажа: @(Model.Sales.FirstOrDefault()?.SaleDate.ToString("dd.MM.yyyy") ?? "нет данных")
-</div>
-
-@if (Model.Sales == null)
-{
-    <div class="alert alert-danger">
-        <strong>Ошибка:</strong> Model.Sales = null (не инициализировано)
-    </div>
-}
-else if (!Model.Sales.Any())
+@if (Model.Sales == null || !Model.Sales.Any())
 {
     <div class="alert alert-warning">
         <h4>Нет данных для отображения</h4>
-        <p>В базе данных нет записей о продажах или произошла ошибка при загрузке.</p>
+        <p>В базе данных нет записей о продажах.</p>
         <a href="/AddSale" class="btn btn-success">Создать первую продажу</a>
     </div>
 }
 else
 {
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <th>ID</th>
+            
                 <th>Дата продажи</th>
                 <th>Сотрудник</th>
                 <th>Сумма</th>
@@ -57,10 +38,12 @@ else
             @foreach (var s in Model.Sales)
             {
                 <tr>
-                    <td>@s.Id</td>
+                  
                     <td>@s.SaleDate.ToString("dd.MM.yyyy")</td>
                     <td>@(s.Employee?.FullName ?? "Не указан")</td>
-                    <td>@s.Total.ToString("C")</td>
+                    <td>@(s.TotalPrice.HasValue? s.TotalPrice.Value.ToString("C", CultureInfo.GetCultureInfo("kk-KZ")) : "0,00 ₸")</td>
+                    <td>@(s.SaleDetails.Sum(d => d.Price * d.Quantity).ToString("C"))</td>
+
                 </tr>
             }
         </tbody>

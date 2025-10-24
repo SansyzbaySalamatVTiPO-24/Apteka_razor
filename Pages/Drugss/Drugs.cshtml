@@ -1,0 +1,40 @@
+﻿@page
+@model Apteka_razor.Pages.Drugs.DrugsModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Лекарства";
+}
+
+<h2>Список лекарств</h2>
+
+@if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Admin")
+{
+    <a class="btn btn-primary mb-3" asp-page="/Drugss/Create">➕ Добавить лекарство</a>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Цена (₸)</th>
+            <th>Количество</th>
+            <th>Производитель</th>
+            <th>Категория</th>
+            <th>Описание</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var drug in Model.DrugList)
+        {
+            <tr>
+                <td>@(drug.Name ?? "—")</td>
+                <td>@(drug.Price?.ToString("N2") ?? "—")</td>
+                <td>@drug.Quantity</td>
+                <td>@(drug.Manufacturer ?? "—")</td>
+                <td>@(drug.Category ?? "—")</td>
+                <td>@(drug.Description ?? "—")</td>
+            </tr>
+        }
+    </tbody>
+
+</table>

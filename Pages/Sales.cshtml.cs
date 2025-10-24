@@ -2,9 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Apteka_razor.Data;
 using Apteka_razor.Data.Models;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Data.Common;
-using Microsoft.EntityFrameworkCore;
 
 namespace Apteka_razor.Pages
 {
@@ -23,40 +20,26 @@ namespace Apteka_razor.Pages
         {
             try
             {
-                Console.WriteLine("=== Начало загрузки продаж ===");
-
-                // Проверяем подключение к базе данных
-                bool canConnect = await _context.Database.CanConnectAsync();
-                Console.WriteLine($"Подключение к базе данных: {(canConnect ? "успешно" : "ошибка")}");
-                Console.WriteLine($"База данных: {_context.Database.GetDbConnection().Database}");
-                Console.WriteLine($"Сервер: {_context.Database.GetDbConnection().DataSource}");
-
-                // ✅ Исправленный запрос
+                // Загружаем все продажи без фильтров
                 Sales = await _context.Sales
-                    .Include(s => s.Employee) // подключаем сотрудника
+                    .AsNoTracking()
                     .OrderByDescending(s => s.SaleDate)
                     .ToListAsync();
 
-                Console.WriteLine($"Загружено продаж: {Sales.Count}");
+                // Подгружаем сотрудников отдельно
+                var employeeIds = Sales.Select(s => s.EmployeeId).Distinct();
+                var employees = await _context.Employees
+                    .Where(e => employeeIds.Contains(e.Id))
+                    .ToListAsync();
 
-                if (Sales.Count == 0)
+                foreach (var sale in Sales)
                 {
-                    Console.WriteLine("⚠️ Продажи не найдены. Возможно, таблица пустая или подключение к другой БД.");
+                    sale.Employee = employees.FirstOrDefault(e => e.Id == sale.EmployeeId);
                 }
-                else
-                {
-                    foreach (var sale in Sales.Take(3))
-                    {
-                        Console.WriteLine($"Sale ID: {sale.Id}, Date: {sale.SaleDate}, Employee: {sale.Employee?.FullName ?? "NULL"}, Total: {sale.TotalPrice}");
-                    }
-                }
-
-                Console.WriteLine("=== Загрузка продаж завершена ===");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Ошибка при загрузке продаж: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine($"Ошибка при загрузке продаж: {ex.Message}");
                 Sales = new List<Sale>();
             }
         }
