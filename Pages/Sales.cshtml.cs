@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Apteka_razor.Data;
 using Apteka_razor.Data.Models;
+using Apteka_razor.Data;
 
 namespace Apteka_razor.Pages
 {
@@ -18,30 +18,12 @@ namespace Apteka_razor.Pages
 
         public async Task OnGetAsync()
         {
-            try
-            {
-                // Загружаем все продажи без фильтров
-                Sales = await _context.Sales
-                    .AsNoTracking()
-                    .OrderByDescending(s => s.SaleDate)
-                    .ToListAsync();
-
-                // Подгружаем сотрудников отдельно
-                var employeeIds = Sales.Select(s => s.EmployeeId).Distinct();
-                var employees = await _context.Employees
-                    .Where(e => employeeIds.Contains(e.Id))
-                    .ToListAsync();
-
-                foreach (var sale in Sales)
-                {
-                    sale.Employee = employees.FirstOrDefault(e => e.Id == sale.EmployeeId);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при загрузке продаж: {ex.Message}");
-                Sales = new List<Sale>();
-            }
+            // Берем все продажи с деталями и сотрудниками
+            Sales = await _context.Sales
+                .Include(s => s.Employee)
+                .Include(s => s.SaleDetails)
+                    .ThenInclude(d => d.Drug)
+                .ToListAsync();
         }
     }
 }

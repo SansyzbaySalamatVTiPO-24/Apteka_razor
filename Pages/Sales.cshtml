@@ -28,23 +28,64 @@ else
     <table class="table table-striped">
         <thead>
             <tr>
-            
                 <th>Дата продажи</th>
                 <th>Сотрудник</th>
-                <th>Сумма</th>
+                <th>Общая сумма</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var s in Model.Sales)
             {
-                <tr>
-                  
+                // пересчитываем сумму, если TotalPrice = null
+                decimal recalculatedTotal = (s.TotalPrice != 0 ? s.TotalPrice.Value : s.SaleDetails?.Sum(d => d.Price * d.Quantity) ?? 0m);
+
+
+
+
+
+
+
+                <tr class="table-primary">
                     <td>@s.SaleDate.ToString("dd.MM.yyyy")</td>
                     <td>@(s.Employee?.FullName ?? "Не указан")</td>
-                    <td>@(s.TotalPrice.HasValue? s.TotalPrice.Value.ToString("C", CultureInfo.GetCultureInfo("kk-KZ")) : "0,00 ₸")</td>
-                    <td>@(s.SaleDetails.Sum(d => d.Price * d.Quantity).ToString("C"))</td>
-
+                    <td>@recalculatedTotal.ToString("C")</td>
                 </tr>
+
+                @if (s.SaleDetails != null && s.SaleDetails.Any())
+                {
+                    <tr>
+                        <td colspan="3">
+                            <table class="table table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Лекарство</th>
+                                        <th>Количество</th>
+                                        <th>Цена (за ед.)</th>
+                                        <th>Сумма</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var d in s.SaleDetails)
+                                    {
+                                        <tr>
+                                            <td>@(d.Drug?.Name ?? "Не указано")</td>
+                                            <td>@d.Quantity</td>
+                                            <td>@d.Price.ToString("C")</td>
+                                            <td>@(d.Price* d.Quantity).ToString("C")</td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3"><em>Нет деталей продажи</em></td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

@@ -4,19 +4,16 @@ using Apteka_razor.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Apteka_razor.Migrations.AppDb
+namespace Apteka_razor.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251007034101_UpdateDrugsTable")]
-    partial class UpdateDrugsTable
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,22 +30,29 @@ namespace Apteka_razor.Migrations.AppDb
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("ExpirationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Manufacturer")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PharmacyId")
+                    b.Property<int?>("PharmacyId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -120,13 +124,16 @@ namespace Apteka_razor.Migrations.AppDb
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("TotalPrice")
+                    b.Property<decimal?>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -147,8 +154,8 @@ namespace Apteka_razor.Migrations.AppDb
                     b.Property<int>("DrugId")
                         .HasColumnType("int");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -162,16 +169,15 @@ namespace Apteka_razor.Migrations.AppDb
 
                     b.HasIndex("SaleId");
 
-                    b.ToTable("SaleDetails");
+                    b.ToTable("SaleDetail", (string)null);
                 });
 
             modelBuilder.Entity("Apteka_razor.Data.Models.Drug", b =>
                 {
                     b.HasOne("Apteka_razor.Data.Models.Pharmacy", "Pharmacy")
-                        .WithMany()
+                        .WithMany("Drugs")
                         .HasForeignKey("PharmacyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Pharmacy");
                 });
@@ -179,9 +185,9 @@ namespace Apteka_razor.Migrations.AppDb
             modelBuilder.Entity("Apteka_razor.Data.Models.Employee", b =>
                 {
                     b.HasOne("Apteka_razor.Data.Models.Pharmacy", "Pharmacy")
-                        .WithMany()
+                        .WithMany("Employees")
                         .HasForeignKey("PharmacyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Pharmacy");
@@ -207,7 +213,7 @@ namespace Apteka_razor.Migrations.AppDb
                         .IsRequired();
 
                     b.HasOne("Apteka_razor.Data.Models.Sale", "Sale")
-                        .WithMany("Details")
+                        .WithMany("SaleDetails")
                         .HasForeignKey("SaleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -217,9 +223,16 @@ namespace Apteka_razor.Migrations.AppDb
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("Apteka_razor.Data.Models.Pharmacy", b =>
+                {
+                    b.Navigation("Drugs");
+
+                    b.Navigation("Employees");
+                });
+
             modelBuilder.Entity("Apteka_razor.Data.Models.Sale", b =>
                 {
-                    b.Navigation("Details");
+                    b.Navigation("SaleDetails");
                 });
 #pragma warning restore 612, 618
         }

@@ -21,18 +21,30 @@ namespace Apteka_razor.Pages.Drugs
         public Drug Drug { get; set; } = new Drug();
 
         public SelectList ManufacturersList { get; set; } = null!;
-
+        public SelectList CategoriesList { get; set; } = null!;
         public void OnGet()
         {
             ManufacturersList = new SelectList(new List<string>
-            {
-                "Bayer",
-                "KRKA",
-                "Pfizer",
-                "Gedeon Richter",
-                "GlaxoSmithKline"
-            });
+    {
+        "Bayer",
+        "KRKA",
+        "Pfizer",
+        "Gedeon Richter",
+        "GlaxoSmithKline"
+    });
+
+            CategoriesList = new SelectList(new List<string>
+    {
+        "Таблетки 30 мг",
+        "Таблетки 50 мг",
+        "Капсулы 500 мг",
+        "Сироп 100 мл",
+        "Мазь 20 г",
+        "Капли 10 мл",
+        "Порошок 1 г"
+    });
         }
+
 
         public async Task<IActionResult> OnPostAsync()
         {

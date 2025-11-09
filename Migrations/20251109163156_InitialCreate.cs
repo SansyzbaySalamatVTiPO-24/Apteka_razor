@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Apteka_razor.Migrations.AppDb
+namespace Apteka_razor.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDrugsTable : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,11 +31,14 @@ namespace Apteka_razor.Migrations.AppDb
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Manufacturer = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Manufacturer = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PharmacyId = table.Column<int>(type: "int", nullable: false)
+                    PharmacyId = table.Column<int>(type: "int", nullable: true),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -44,8 +47,7 @@ namespace Apteka_razor.Migrations.AppDb
                         name: "FK_Drugs_Pharmacies_PharmacyId",
                         column: x => x.PharmacyId,
                         principalTable: "Pharmacies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -67,8 +69,7 @@ namespace Apteka_razor.Migrations.AppDb
                         name: "FK_Employees_Pharmacies_PharmacyId",
                         column: x => x.PharmacyId,
                         principalTable: "Pharmacies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -77,9 +78,10 @@ namespace Apteka_razor.Migrations.AppDb
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SaleDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EmployeeId = table.Column<int>(type: "int", nullable: false)
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    SaleDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,7 +95,7 @@ namespace Apteka_razor.Migrations.AppDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "SaleDetails",
+                name: "SaleDetail",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -101,19 +103,19 @@ namespace Apteka_razor.Migrations.AppDb
                     SaleId = table.Column<int>(type: "int", nullable: false),
                     DrugId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false)
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SaleDetails", x => x.Id);
+                    table.PrimaryKey("PK_SaleDetail", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SaleDetails_Drugs_DrugId",
+                        name: "FK_SaleDetail_Drugs_DrugId",
                         column: x => x.DrugId,
                         principalTable: "Drugs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SaleDetails_Sales_SaleId",
+                        name: "FK_SaleDetail_Sales_SaleId",
                         column: x => x.SaleId,
                         principalTable: "Sales",
                         principalColumn: "Id",
@@ -131,13 +133,13 @@ namespace Apteka_razor.Migrations.AppDb
                 column: "PharmacyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SaleDetails_DrugId",
-                table: "SaleDetails",
+                name: "IX_SaleDetail_DrugId",
+                table: "SaleDetail",
                 column: "DrugId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SaleDetails_SaleId",
-                table: "SaleDetails",
+                name: "IX_SaleDetail_SaleId",
+                table: "SaleDetail",
                 column: "SaleId");
 
             migrationBuilder.CreateIndex(
@@ -150,7 +152,7 @@ namespace Apteka_razor.Migrations.AppDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SaleDetails");
+                name: "SaleDetail");
 
             migrationBuilder.DropTable(
                 name: "Drugs");

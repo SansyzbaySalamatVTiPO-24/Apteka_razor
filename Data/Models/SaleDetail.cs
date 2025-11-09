@@ -1,30 +1,17 @@
 ﻿using Apteka_razor.Data.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-
-[Table("SaleDetail")] // ← важно!
-public class SaleDetail
+namespace Apteka_razor.Data.Models
 {
-    [Key]
-    public int Id { get; set; }
 
-    [Required]
-    public int SaleId { get; set; }
+    public class SaleDetail
+    {
+        public int Id { get; set; }
+        public int SaleId { get; set; }
+        public int DrugId { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }  // decimal, не double?
 
-    [ForeignKey(nameof(SaleId))]
-    public Sale Sale { get; set; } = null!;
-
-    [Required]
-    public int DrugId { get; set; }
-
-    [ForeignKey(nameof(DrugId))]
-    public Drug Drug { get; set; } = null!;
-
-    [Required]
-    [Column(TypeName = "decimal(18,2)")]
-    public decimal Price { get; set; }
-
-    [Required]
-    public int Quantity { get; set; }
+        public Sale Sale { get; set; }
+        public Drug Drug { get; set; }
+    }
 }
+

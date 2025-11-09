@@ -31,7 +31,9 @@
 
     <div class="form-group">
         <label>Категория</label>
-        <input asp-for="Drug.Category" class="form-control" />
+        <select asp-for="Drug.Category" class="form-control" asp-items="Model.CategoriesList">
+            <option value="">-- выберите категорию --</option>
+        </select>
     </div>
 
     <div class="form-group">
