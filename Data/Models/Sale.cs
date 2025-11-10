@@ -12,14 +12,13 @@ namespace Apteka_razor.Data.Models
         public int Id { get; set; }
 
         public int EmployeeId { get; set; }
-        public int CustomerId { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal? TotalPrice { get; set; } // nullable для старых записей
 
         public DateTime SaleDate { get; set; }
 
-        public virtual Employee Employee { get; set; } = null!;
+        public Employee? Employee { get; set; }
         public virtual List<SaleDetail> SaleDetails { get; set; } = new();
     }
 }

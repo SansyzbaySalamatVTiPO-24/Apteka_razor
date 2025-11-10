@@ -12,15 +12,10 @@
 }
 
 <form method="post">
-    <div class="form-group">
-        <label>Сотрудник:</label>
-        <select asp-for="Sale.EmployeeId" class="form-control" asp-items="@(new SelectList(Model.Employees, "Id", "FullName"))">
-            <option value="">-- выберите сотрудника --</option>
-        </select>
-    </div>
+    
 
     <div class="form-group">
-        <label>Дата продажи:</label>
+        <label asp-for="Sale.SaleDate">Дата продажи:</label>
         <input asp-for="Sale.SaleDate" class="form-control" type="datetime-local" />
     </div>
 
@@ -51,3 +46,7 @@
 
     <button type="submit" class="btn btn-success">Добавить продажу</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

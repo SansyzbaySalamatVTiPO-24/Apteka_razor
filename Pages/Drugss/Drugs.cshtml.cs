@@ -8,11 +8,11 @@ namespace Apteka_razor.Pages.Drugs
 {
     public class DrugsModel : PageModel
     {
-        private readonly PharmacyDbContext _context;
+        private readonly AppDbContext _context;
 
         public List<Drug> DrugList { get; set; } = new();
 
-        public DrugsModel(PharmacyDbContext context)
+        public DrugsModel(AppDbContext context)
         {
             _context = context;
         }

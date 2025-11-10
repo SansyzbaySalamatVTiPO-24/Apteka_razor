@@ -70,8 +70,8 @@ else
                                         <tr>
                                             <td>@(d.Drug?.Name ?? "Не указано")</td>
                                             <td>@d.Quantity</td>
-                                            <td>@d.Price.ToString("C")</td>
-                                            <td>@(d.Price* d.Quantity).ToString("C")</td>
+                                            <td>@d.Price</td>
+                                            <td>@(d.Price* d.Quantity)</td>
 
                                         </tr>
                                     }

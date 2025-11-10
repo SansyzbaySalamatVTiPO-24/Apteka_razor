@@ -26,7 +26,6 @@ namespace Apteka_razor.Pages
 
         public List<Employee> Employees { get; set; } = new List<Employee>();
         public List<Drug> Drugs { get; set; } = new List<Drug>();
-
         public string Message { get; set; } = string.Empty;
 
         public async Task OnGetAsync()
@@ -38,7 +37,7 @@ namespace Apteka_razor.Pages
         {
             await LoadData();
 
-            // проверка роли пользователя
+            // Проверка роли пользователя
             var role = HttpContext.Session.GetString("UserRole");
             if (role != "Admin" && role != "Pharmacist" && role != "Seller")
             {
@@ -47,26 +46,32 @@ namespace Apteka_razor.Pages
             }
 
             if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine("Model error: " + error.ErrorMessage);
+                }
+                Message = "❌ Ошибка модели. Проверьте поля формы.";
                 return Page();
+            }
 
             try
             {
-                var selectedEmployee = await _context.Employees.FindAsync(Sale.EmployeeId);
-                if (selectedEmployee == null)
+                // 🔹 Получаем ID вошедшего сотрудника из сессии
+                var employeeId = HttpContext.Session.GetInt32("EmployeeId");
+                if (employeeId == null)
                 {
-                    ModelState.AddModelError("Sale.EmployeeId", "Выбранный сотрудник не существует");
+                    Message = "Ошибка: не удалось определить сотрудника. Авторизуйтесь заново.";
                     return Page();
                 }
 
-                if (Sale.SaleDate == default)
-                    Sale.SaleDate = DateTime.Now;
+                Sale.EmployeeId = employeeId.Value;
 
-                Sale.CustomerId = 1; // временно
 
                 decimal totalSalePrice = 0;
                 var saleDetails = new List<SaleDetail>();
 
-                // формируем детали продажи
+                // 🔹 Формируем детали продажи
                 foreach (var detailVm in SaleDetails)
                 {
                     if (detailVm.DrugId > 0 && detailVm.Quantity > 0)
@@ -91,17 +96,20 @@ namespace Apteka_razor.Pages
                             totalSalePrice += price * detailVm.Quantity;
                             saleDetails.Add(detail);
 
-                            // уменьшаем количество товара на складе
+                            // Уменьшаем количество товара
                             drug.Quantity -= detailVm.Quantity;
                         }
                     }
                 }
 
+                // 🔹 Итоговая сумма продажи
                 Sale.TotalPrice = totalSalePrice;
 
+                // 🔹 Добавляем и сохраняем продажу
                 _context.Sales.Add(Sale);
-                await _context.SaveChangesAsync(); // сохраняем, чтобы получить Sale.Id
+                await _context.SaveChangesAsync();
 
+                // 🔹 Привязываем детали к продаже
                 foreach (var detail in saleDetails)
                     detail.SaleId = Sale.Id;
 
@@ -110,7 +118,7 @@ namespace Apteka_razor.Pages
 
                 Message = "✅ Продажа успешно добавлена!";
 
-                // сброс формы
+                // 🔹 Сброс формы
                 Sale = new Sale();
                 SaleDetails = new List<SaleDetailViewModel> { new SaleDetailViewModel() };
                 ModelState.Clear();

@@ -1,4 +1,4 @@
-using Apteka_razor.Data.Services;
+﻿using Apteka_razor.Data.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -29,12 +29,16 @@ namespace Apteka_razor.Pages
             var user = _authService.Authenticate(Login, Password);
             if (user == null)
             {
-                Message = "�������� ����� ��� ������!";
+                Message = "Неверный логин или пароль!";
                 return Page();
             }
 
-            _httpContextAccessor.HttpContext!.Session.SetString("UserName", user.FullName);
-            _httpContextAccessor.HttpContext!.Session.SetString("UserRole", user.Role);
+            var context = _httpContextAccessor.HttpContext!;
+            context.Session.SetString("UserName", user.FullName);
+            context.Session.SetString("UserRole", user.Role);
+
+            // 🔹 ВАЖНО: сохраняем ID сотрудника в сессию
+            context.Session.SetInt32("EmployeeId", user.Id);
 
             return RedirectToPage("/Index");
         }
