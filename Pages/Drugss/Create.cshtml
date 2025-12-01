@@ -7,43 +7,50 @@
 <h2>Добавить лекарство</h2>
 
 <form method="post">
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Название</label>
         <input asp-for="Drug.Name" class="form-control" />
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Производитель</label>
         <select asp-for="Drug.Manufacturer" class="form-control" asp-items="Model.ManufacturersList">
             <option value="">-- выберите --</option>
         </select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Цена (₸)</label>
         <input asp-for="Drug.Price" type="number" step="0.01" class="form-control" />
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Количество</label>
         <input asp-for="Drug.Quantity" type="number" class="form-control" />
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Категория</label>
         <select asp-for="Drug.Category" class="form-control" asp-items="Model.CategoriesList">
             <option value="">-- выберите категорию --</option>
         </select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Описание</label>
         <textarea asp-for="Drug.Description" class="form-control" rows="3"></textarea>
     </div>
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label>Срок годности</label>
         <input asp-for="Drug.ExpirationDate" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Аптека</label>
+        <select asp-for="Drug.PharmacyId" class="form-control" asp-items="Model.PharmaciesList">
+            <option value="">-- выберите аптеку --</option>
+        </select>
     </div>
 
     <button type="submit" class="btn btn-primary mt-3">Добавить</button>

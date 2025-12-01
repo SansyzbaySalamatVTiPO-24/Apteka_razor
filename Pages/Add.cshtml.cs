@@ -12,6 +12,7 @@ namespace Apteka_razor.Pages
         [BindProperty]
         public Employee Employee { get; set; } = new();
 
+        public List<Pharmacy> Pharmacies { get; set; } = new();
         public string? Message { get; set; }
 
         public AddEmployeeModel(AppDbContext context)
@@ -19,11 +20,15 @@ namespace Apteka_razor.Pages
             _context = context;
         }
 
-        public void OnGet() { }
+        public void OnGet()
+        {
+            Pharmacies = _context.Pharmacies.ToList();
+        }
 
         public IActionResult OnPost()
         {
-            // Проверяем роль из сессии — только Admin может добавлять
+            Pharmacies = _context.Pharmacies.ToList();
+
             var role = HttpContext.Session.GetString("UserRole");
             if (role != "Admin")
             {
@@ -35,7 +40,7 @@ namespace Apteka_razor.Pages
             _context.SaveChanges();
 
             Message = "✅ Сотрудник успешно добавлен!";
-            Employee = new(); // очистить форму
+            Employee = new();
             return Page();
         }
     }

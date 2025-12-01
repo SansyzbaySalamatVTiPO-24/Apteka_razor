@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Apteka_razor.Data;
 using Apteka_razor.Data.Models;
 using System.Collections.Generic;
@@ -19,7 +20,10 @@ namespace Apteka_razor.Pages.Drugs
 
         public void OnGet()
         {
-            DrugList = _context.Drugs.ToList();
+            // 🔹 Загружаем лекарства вместе с информацией об аптеке
+            DrugList = _context.Drugs
+                .Include(d => d.Pharmacy) // подгружаем аптеку
+                .ToList();
         }
     }
 }

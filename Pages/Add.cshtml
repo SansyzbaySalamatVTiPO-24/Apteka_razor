@@ -28,8 +28,15 @@
         </select>
     </div>
     <div class="mb-3">
-        <label>Аптека (ID):</label>
-        <input asp-for="Employee.PharmacyId" class="form-control" type="number" required />
+        <label>Аптека:</label>
+        <select asp-for="Employee.PharmacyId" class="form-select" required>
+            <option value="">-- выберите аптеку --</option>
+            @foreach (var ph in Model.Pharmacies)
+            {
+                <option value="@ph.Id">@ph.Name — @ph.Address</option>
+            }
+        </select>
+
     </div>
     <button type="submit" class="btn btn-success">Добавить</button>
 </form>

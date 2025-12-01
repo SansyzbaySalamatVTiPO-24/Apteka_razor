@@ -27,7 +27,8 @@
             <tr>
                 <td>@emp.FullName</td>
                 <td>@emp.Role</td>
-                <td>@emp.PharmacyId</td>
+                <td>@emp.Pharmacy?.Name<br /><small>@emp.Pharmacy?.Address</small></td>
+
             </tr>
         }
     </tbody>

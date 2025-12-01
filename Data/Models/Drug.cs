@@ -1,4 +1,6 @@
-﻿namespace Apteka_razor.Data.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Apteka_razor.Data.Models
 {
     public class Drug
     {
@@ -12,6 +14,8 @@
         public int? PharmacyId { get; set; }
         public string? Category { get; set; }
         public string? Description { get; set; }
-        public Pharmacy? Pharmacy { get; set; }
+        [ForeignKey("PharmacyId")]
+        public Pharmacy? Pharmacy { get; set; } // nullable, так как PharmacyId может быть NULL
+
     }
 }

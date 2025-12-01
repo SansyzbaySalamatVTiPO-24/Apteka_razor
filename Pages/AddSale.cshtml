@@ -12,11 +12,15 @@
 }
 
 <form method="post">
-    
 
-    <div class="form-group">
+    <div class="form-group mb-3">
         <label asp-for="Sale.SaleDate">Дата продажи:</label>
-        <input asp-for="Sale.SaleDate" class="form-control" type="datetime-local" />
+        <input asp-for="Sale.SaleDate"
+               class="form-control"
+               type="date"
+               value="@DateTime.Now.ToString("yyyy-MM-dd")"
+               min="@DateTime.Now.ToString("yyyy-MM-dd")"
+               max="@DateTime.Now.ToString("yyyy-MM-dd")" />
     </div>
 
     <h4>Товары</h4>
@@ -30,14 +34,30 @@
         <tbody>
             @for (int i = 0; i < Model.SaleDetails.Count; i++)
             {
+                var selectedDrug = Model.Drugs.FirstOrDefault(d => d.Id == Model.SaleDetails[i].DrugId);
+                var availableQty = selectedDrug?.Quantity ?? 0;
+
                 <tr>
                     <td>
-                        <select asp-for="SaleDetails[@i].DrugId" class="form-control" asp-items="@(new SelectList(Model.Drugs, "Id", "Name"))">
+                        <select asp-for="SaleDetails[@i].DrugId"
+                                class="form-control drug-select"
+                                data-index="@i"
+                                asp-items="@(new SelectList(Model.Drugs, "Id", "Name"))">
                             <option value="">-- выберите товар --</option>
                         </select>
                     </td>
+
                     <td>
-                        <input asp-for="SaleDetails[@i].Quantity" class="form-control" type="number" min="1" />
+                        <input asp-for="SaleDetails[@i].Quantity"
+                               class="form-control qty-input"
+                               type="number"
+                               min="1"
+                               max="@availableQty"
+                               data-index="@i" />
+
+                        <small class="text-muted d-block availability-info">
+                            В наличии: @(Model.SaleDetails[i].DrugId == 0 ? "-" : availableQty)
+                        </small>
                     </td>
                 </tr>
             }
@@ -49,4 +69,36 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // 👇 Исправлено: сериализация с camelCase
+        const drugs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.Drugs,
+            new System.Text.Json.JsonSerializerOptions {
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+            }
+        ));
+
+        document.querySelectorAll(".drug-select").forEach(select => {
+            select.addEventListener("change", function () {
+                const index = this.dataset.index;
+                const drugId = Number(this.value);
+                const drug = drugs.find(d => d.id === drugId);
+
+                const qtyInput = document.querySelector(`input[name="SaleDetails[${index}].Quantity"]`);
+                const info = qtyInput.parentElement.querySelector(".availability-info");
+
+                if (!drug) {
+                    qtyInput.max = 1;
+                    qtyInput.value = "";
+                    info.innerHTML = "В наличии: -";
+                    return;
+                }
+
+                qtyInput.max = drug.quantity;
+                qtyInput.value = "";
+                info.innerHTML = `В наличии: ${drug.quantity}`;
+            });
+        });
+    </script>
 }

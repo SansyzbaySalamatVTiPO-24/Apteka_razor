@@ -21,6 +21,8 @@
             <th>Производитель</th>
             <th>Категория</th>
             <th>Описание</th>
+            <th>Аптека</th>
+            <th>Адрес аптеки</th>
         </tr>
     </thead>
     <tbody>
@@ -33,8 +35,9 @@
                 <td>@(drug.Manufacturer ?? "—")</td>
                 <td>@(drug.Category ?? "—")</td>
                 <td>@(drug.Description ?? "—")</td>
+                <td>@(drug.Pharmacy?.Name ?? "—")</td>
+                <td>@(drug.Pharmacy?.Address ?? "—")</td>
             </tr>
         }
     </tbody>
-
 </table>
